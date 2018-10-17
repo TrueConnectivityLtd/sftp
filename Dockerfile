@@ -1,8 +1,10 @@
-FROM debian:jessie
-MAINTAINER Adrian Dvergsdal [atmoz.net]
+FROM debian:stretch
+MAINTAINER Michal Janousek [Trustago.com]
+# Based on -  Adrian Dvergsdal [atmoz.net]
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-server rsyslog supervisor && \
+    DEBIAN_FRONTEND=noninteractive apt-get -y install openssh-server rsyslog supervisor \
+    s3fs && \
     rm -rf /var/lib/apt/lists/*
 
 # sshd needs this directory to run
