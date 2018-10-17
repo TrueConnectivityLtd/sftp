@@ -11,7 +11,7 @@ mkdir -p $FTP_DIRECTORY
 chown root:root $FTP_DIRECTORY
 chmod 755 $FTP_DIRECTORY
 
-s3fs $SFTP_BUCKET $FTP_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0066" -o mp_umask="0022"
+s3fs $SFTP_BUCKET $FTP_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0011" -o mp_umask="0011"
 
 function printHelp() {
     echo "Add users as command arguments, STDIN or mounted in $userConfPath"
