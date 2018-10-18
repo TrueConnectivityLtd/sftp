@@ -4,14 +4,14 @@ set -e
 userConfPath="/etc/sftp-users.conf"
 userConfFinalPath="/var/run/sftp-users.conf"
 
-FTP_DIRECTORY="/home/aws/s3bucket"
+S3_DIRECTORY="/home/aws/s3bucket"
 
-# Create a directory where all
-mkdir -p $FTP_DIRECTORY
-chown root:root $FTP_DIRECTORY
-chmod 755 $FTP_DIRECTORY
+# Create a directory where we put all the stuff
+mkdir -p $S3_DIRECTORY
+chown root:root $S3_DIRECTORY
+chmod 755 $S3_DIRECTORY
 
-s3fs $SFTP_BUCKET $FTP_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0011" -o mp_umask="0011"
+s3fs $SFTP_BUCKET $S3_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0011" -o mp_umask="0011"
 
 function printHelp() {
     echo "Add users as command arguments, STDIN or mounted in $userConfPath"
@@ -75,15 +75,17 @@ function createUser() {
     touch /var/log/sftp.log
 
     mkdir /home/$user/.ssh
+    chmod 755 /home/$user/.ssh
+    chown $user /home/$user/.ssh
+
     mkdir /home/$user/inbound
     mkdir /home/$user/outbound
 
-    mount --bind $FTP_DIRECTORY/$user/.ssh /home/$user/.ssh
-    mount --bind $FTP_DIRECTORY/$user/inbound  /home/$user/inbound
-    mount --bind $FTP_DIRECTORY/$user/outbound /home/$user/outbound
+    mount --bind $S3_DIRECTORY/$user/inbound /home/$user/inbound
+    mount --bind $S3_DIRECTORY/$user/outbound /home/$user/outbound
 
-    chmod -R 755 $FTP_DIRECTORY/$user/inbound
-    chmod -R 755 $FTP_DIRECTORY/$user/outbound
+    chmod -R 755 $S3_DIRECTORY/$user/inbound
+    chmod -R 755 $S3_DIRECTORY/$user/outbound
 
     if [ -z "$pass" ]; then
         pass="$(echo `</dev/urandom tr -dc A-Za-z0-9 | head -c256`)"
@@ -93,10 +95,10 @@ function createUser() {
     echo "$user:$pass" | chpasswd $chpasswdOptions
 
     # Add SSH keys to authorized_keys with valid permissions
-    if [ -d /home/$user/.ssh/keys ]; then
-        cat /home/$user/.ssh/keys/* >> /home/$user/.ssh/authorized_keys
-        chown $user $FTP_DIRECTORY/$user/.ssh/authorized_keys
-        chmod 600 $FTP_DIRECTORY/$user/.ssh/authorized_keys
+    if [ -d $S3_DIRECTORY/$user/.ssh/keys ]; then
+        cat $S3_DIRECTORY/$user/.ssh/keys/* >> /home/$user/.ssh/authorized_keys
+        chown $user /home/$user/.ssh/authorized_keys
+        chmod 600 /home/$user/.ssh/authorized_keys
     fi
 }
 
