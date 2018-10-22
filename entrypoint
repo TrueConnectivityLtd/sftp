@@ -11,7 +11,7 @@ mkdir -p $S3_DIRECTORY
 chown root:root $S3_DIRECTORY
 chmod 755 $S3_DIRECTORY
 
-s3fs $SFTP_BUCKET $S3_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0011" -o mp_umask="0011"
+s3fs $SFTP_BUCKET $S3_DIRECTORY -o allow_other -o iam_role="auto" -o umask="0010" -o mp_umask="0010"
 
 function printHelp() {
     echo "Add users as command arguments, STDIN or mounted in $userConfPath"
